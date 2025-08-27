@@ -4,6 +4,7 @@ console.log("Task Tracker using command line");
 
 const CLI_COMMANDS = {
   ADD: "add",
+  UPDATE: "update",
 };
 
 const TASK_STATUS = {
@@ -18,11 +19,10 @@ if (!existsSync(filePath)) {
   writeFileSync(filePath, "[]");
 }
 
-// add task
 const [executor, taskCli, action, ...rest] = process.argv;
 
 try {
-  // task creation 
+  // task creation
   if (action === CLI_COMMANDS.ADD) {
     const [description] = rest;
 
@@ -31,7 +31,7 @@ try {
     }
 
     const tasks = JSON.parse(readFileSync(filePath));
-    let taskId = tasks.length ? tasks[tasks.length - 1] + 1 : 1;
+    let taskId = tasks.length ? tasks[tasks.length - 1].id + 1 : 1;
     let timestamp = new Date();
     const newTask = {
       id: taskId,
@@ -41,8 +41,23 @@ try {
       updatedAt: timestamp,
     };
     tasks.push(newTask);
-    writeFileSync(filePath,JSON.stringify(tasks))
-    console.log("Task added")
+    writeFileSync(filePath, JSON.stringify(tasks));
+    console.log(`Task added successfully (ID: ${taskId})`);
+  } else if (action === CLI_COMMANDS.UPDATE) {
+    const [taskId, description] = rest;
+    const tasks = JSON.parse(readFileSync(filePath));
+
+    const taskIndex = tasks.findIndex((task) => {
+      return task.id === parseInt(taskId);
+    });
+
+    if (taskIndex === -1) {
+      throw new Error("Task not found");
+    }
+
+    tasks[taskIndex].description = description;
+     writeFileSync(filePath, JSON.stringify(tasks));
+    console.log(`Task updated successfully (ID: ${taskId})`);
   }
 } catch (error) {
   console.log("Error : " + error?.message);
