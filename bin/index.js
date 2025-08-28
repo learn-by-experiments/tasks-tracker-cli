@@ -8,6 +8,7 @@ const CLI_COMMANDS = {
   DELETE: "delete",
   MARK_IN_PROGRESS: "mark-in-progress",
   MARK_DONE: "mark-done",
+  LIST: "list",
 };
 
 const TASK_STATUS = {
@@ -109,6 +110,15 @@ try {
 
     writeFileSync(filePath, JSON.stringify(tasks));
     console.log(`Task status updated successfully (ID: ${taskId})`);
+  } else if (action === CLI_COMMANDS.LIST) {
+    const [status] = rest;
+    let tasks = JSON.parse(readFileSync(filePath));
+    if (status) {
+      let filteredTasks = tasks.filter((task) => task.status === status);
+      console.log(filteredTasks);
+    } else {
+      console.log(tasks);
+    }
   }
 } catch (error) {
   console.log("Error : " + error?.message);
