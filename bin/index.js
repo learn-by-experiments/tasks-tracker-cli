@@ -6,6 +6,8 @@ const CLI_COMMANDS = {
   ADD: "add",
   UPDATE: "update",
   DELETE: "delete",
+  MARK_IN_PROGRESS: "mark-in-progress",
+  MARK_DONE: "mark-done",
 };
 
 const TASK_STATUS = {
@@ -59,8 +61,7 @@ try {
     tasks[taskIndex].description = description;
     writeFileSync(filePath, JSON.stringify(tasks));
     console.log(`Task updated successfully (ID: ${taskId})`);
-  }
-  else if(action === CLI_COMMANDS.DELETE){
+  } else if (action === CLI_COMMANDS.DELETE) {
     const [taskId] = rest;
 
     let tasks = JSON.parse(readFileSync(filePath));
@@ -73,9 +74,41 @@ try {
       throw new Error("Task not found");
     }
 
-    const [deletedTask] = tasks.splice(taskIndex,1)
-    writeFileSync(filePath,JSON.stringify(tasks))
-    console.log(`Task "${deletedTask.description}" deleted successfully (ID: ${deletedTask.id})`)
+    const [deletedTask] = tasks.splice(taskIndex, 1);
+    writeFileSync(filePath, JSON.stringify(tasks));
+    console.log(
+      `Task "${deletedTask.description}" deleted successfully (ID: ${deletedTask.id})`
+    );
+  } else if (action === CLI_COMMANDS.MARK_DONE) {
+    const [taskId] = rest;
+    let tasks = JSON.parse(readFileSync(filePath));
+    const taskIndex = tasks.findIndex((task) => {
+      return task.id === parseInt(taskId);
+    });
+
+    if (taskIndex === -1) {
+      throw new Error("Task not found");
+    }
+
+    tasks[taskIndex].status = TASK_STATUS.DONE;
+
+    writeFileSync(filePath, JSON.stringify(tasks));
+    console.log(`Task status updated successfully (ID: ${taskId})`);
+  } else if (action === CLI_COMMANDS.MARK_IN_PROGRESS) {
+    const [taskId] = rest;
+    let tasks = JSON.parse(readFileSync(filePath));
+    const taskIndex = tasks.findIndex((task) => {
+      return task.id === parseInt(taskId);
+    });
+
+    if (taskIndex === -1) {
+      throw new Error("Task not found");
+    }
+
+    tasks[taskIndex].status = TASK_STATUS.IN_PROGRESS;
+
+    writeFileSync(filePath, JSON.stringify(tasks));
+    console.log(`Task status updated successfully (ID: ${taskId})`);
   }
 } catch (error) {
   console.log("Error : " + error?.message);
